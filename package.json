@@ -1,0 +1,9 @@
+{
+  "name": "camping-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Live-editable camping trip status page for guests.",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
