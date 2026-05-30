@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Portola Redwoods Camp Trip — Plans & Status</title>
+<meta name="description" content="Everything our group needs for the Portola Redwoods camping trip: dates, sites, directions, who's coming, and what to bring." />
+<style>
+  :root {
+    --bg: #0f1411; --panel: #18201b; --line: #2c3a30; --text: #e8efe9;
+    --muted: #9fb0a4; --accent: #6fae6a; --accent-soft: #2a3a2c; --warn: #d9a441; --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 96px; }
+
+  .hero {
+    background: linear-gradient(160deg, #1d2a20, #131a15);
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 28px 22px; text-align: center;
+  }
+  .hero .pin { font-size: 30px; }
+  .hero h1 { margin: 6px 0 2px; font-size: 26px; }
+  .hero .where { color: var(--muted); margin: 0 0 16px; font-size: 15px; }
+  .dates {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: var(--accent-soft); border: 1px solid var(--line);
+    padding: 10px 16px; border-radius: 999px; font-weight: 600; font-size: 15px;
+  }
+  .countdown { margin-top: 16px; font-size: 14px; color: var(--accent); font-weight: 600; }
+
+  .status {
+    display: flex; align-items: center; gap: 10px; margin: 16px 0; padding: 12px 16px;
+    border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--line); font-size: 14px;
+  }
+  .status .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex: none; }
+  .status.pending .dot { background: var(--warn); }
+
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 28px 4px 10px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 4px; }
+  .card .value { font-size: 17px; font-weight: 600; }
+  .card .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .card.full { grid-column: 1 / -1; }
+
+  a.btn, button.btn {
+    display: inline-block; margin-top: 10px; text-decoration: none; cursor: pointer;
+    background: var(--accent); color: #0c130c; font-weight: 700; border: none;
+    padding: 9px 16px; border-radius: 10px; font-size: 14px; font-family: inherit;
+  }
+  a.link { color: var(--accent); text-decoration: none; }
+  a.link:hover { text-decoration: underline; }
+
+  .rows { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .row { display: flex; justify-content: space-between; gap: 16px; padding: 13px 16px; border-top: 1px solid var(--line); font-size: 15px; }
+  .row:first-child { border-top: none; }
+  .row .k { color: var(--muted); }
+  .row .v { text-align: right; font-weight: 600; }
+  .row.note { display: block; color: var(--text); }
+  .who .v { color: var(--accent); }
+  .who .total { background: var(--accent-soft); font-weight: 700; }
+  .tag { font-size: 11px; color: var(--warn); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 8px; }
+
+  ul.bring { margin: 0; padding: 0; list-style: none; }
+  ul.bring li { padding: 11px 16px; border-top: 1px solid var(--line); font-size: 15px; }
+  ul.bring li:first-child { border-top: none; }
+
+  .foot { text-align: center; color: var(--muted); font-size: 12px; margin-top: 32px; }
+
+  /* Edit button */
+  #editFab {
+    position: fixed; right: 16px; bottom: 16px; z-index: 30;
+    background: var(--accent); color: #0c130c; border: none; cursor: pointer;
+    font-weight: 800; font-size: 14px; padding: 12px 18px; border-radius: 999px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4); font-family: inherit;
+  }
+
+  /* Edit modal */
+  #editOverlay {
+    position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,0.6);
+    display: none; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 24px 12px;
+  }
+  #editOverlay.open { display: flex; }
+  .modal {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 16px;
+    width: 100%; max-width: 640px; padding: 20px; margin: auto;
+  }
+  .modal h3 { margin: 0 0 4px; font-size: 20px; }
+  .modal .hint { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 5px; }
+  .field input, .field select, .field textarea {
+    width: 100%; background: var(--panel); color: var(--text); border: 1px solid var(--line);
+    border-radius: 9px; padding: 10px 12px; font-size: 15px; font-family: inherit;
+  }
+  .field.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .field.two label { grid-column: 1 / -1; }
+  .secn { margin: 22px 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); border-top: 1px solid var(--line); padding-top: 16px; }
+  .le-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+  .le-input { flex: 1; min-width: 0; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; font-size: 14px; font-family: inherit; }
+  .le-input.num { flex: 0 0 64px; }
+  .le-del { flex: none; background: #3a2526; color: #e8a0a0; border: 1px solid #5a3536; border-radius: 8px; width: 34px; height: 34px; cursor: pointer; font-size: 14px; }
+  .le-add { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; border-top: 1px solid var(--line); padding-top: 16px; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 10px; padding: 9px 16px; cursor: pointer; font-size: 14px; font-weight: 600; font-family: inherit; }
+
+  /* Toast */
+  #toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+    background: var(--accent); color: #0c130c; font-weight: 700; padding: 11px 20px; border-radius: 10px;
+    opacity: 0; transition: all .25s ease; z-index: 50; pointer-events: none; font-size: 14px;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="pin">🏕️</div>
+    <h1 id="t-title"></h1>
+    <p class="where" id="t-where"></p>
+    <div class="dates"><span>📅</span><span id="t-dates"></span></div>
+    <div class="countdown" id="t-countdown"></div>
+  </div>
+
+  <div class="status" id="t-status"><span class="dot"></span><span id="t-status-text"></span></div>
+
+  <h2>The Essentials</h2>
+  <div class="grid">
+    <div class="card"><div class="label">Arrive</div><div class="value" id="c-arrive"></div><div class="sub">Check-in <span id="c-checkin"></span></div></div>
+    <div class="card"><div class="label">Depart</div><div class="value" id="c-depart"></div><div class="sub">Check-out <span id="c-checkout"></span></div></div>
+    <div class="card"><div class="label">Our sites</div><div class="value" id="c-sites"></div></div>
+    <div class="card"><div class="label">Length</div><div class="value" id="c-nights"></div></div>
+    <div class="card full">
+      <div class="label">Where</div>
+      <div class="value" id="c-address"></div>
+      <div class="sub" id="c-phone"></div>
+      <a class="btn" id="c-maps" target="_blank" rel="noopener">Get Directions →</a>
+    </div>
+  </div>
+
+  <h2>Our Sites</h2>
+  <div class="rows" id="t-sites"></div>
+
+  <h2>Who's Coming</h2>
+  <div class="rows who" id="t-guests"></div>
+
+  <h2>Weather &amp; What to Bring</h2>
+  <div class="rows"><div class="row note" id="t-weather"></div></div>
+  <ul class="bring rows" id="t-bring" style="margin-top:12px"></ul>
+
+  <h2>Things to Do</h2>
+  <div class="rows" id="t-activities"></div>
+
+  <h2>Campground Info</h2>
+  <div class="rows" id="t-details"></div>
+  <div style="text-align:center; margin-top:10px"><a class="link" id="t-cgurl" target="_blank" rel="noopener"></a></div>
+
+  <h2>Good to Know</h2>
+  <div class="rows" id="t-notes"></div>
+
+  <div class="foot">Bookmark this page — it updates live as plans firm up. 🌲</div>
+</div>
+
+<button id="editFab">✎ Edit trip</button>
+
+<div id="editOverlay">
+  <div class="modal">
+    <h3>Edit trip info</h3>
+    <p class="hint">Changes save instantly and show up for everyone who opens the page.</p>
+
+    <div class="field"><label>Trip title</label><input id="f-title" type="text" /></div>
+    <div class="field"><label>Campground / location line</label><input id="f-campground" type="text" /></div>
+    <div class="field two"><label>Dates</label>
+      <input id="f-arrive" type="date" /><input id="f-depart" type="date" />
+    </div>
+    <div class="field"><label>Status</label>
+      <select id="f-statusLevel"><option value="confirmed">Confirmed (green)</option><option value="pending">Pending (amber)</option></select>
+    </div>
+    <div class="field"><label>Status message</label><input id="f-statusText" type="text" /></div>
+
+    <div class="secn">Essentials</div>
+    <div class="field two"><label>Check-in / Check-out</label>
+      <input id="f-checkIn" type="text" placeholder="2:00 PM" /><input id="f-checkOut" type="text" placeholder="12:00 noon" />
+    </div>
+    <div class="field two"><label>Sites / Length</label>
+      <input id="f-siteNumbers" type="text" placeholder="6, 8, 9 & 52" /><input id="f-nights" type="text" placeholder="2 nights" />
+    </div>
+    <div class="field"><label>Address</label><input id="f-address" type="text" /></div>
+    <div class="field two"><label>Phone / Maps link</label>
+      <input id="f-phone" type="text" placeholder="(650) ..." /><input id="f-mapsUrl" type="text" placeholder="https://maps.app.goo.gl/..." />
+    </div>
+    <div class="field"><label>Campground website</label><input id="f-campgroundUrl" type="text" /></div>
+
+    <div class="secn">Our sites (label · detail)</div>
+    <div id="le-sites"></div>
+    <button type="button" class="le-add" data-add="sites">+ Add row</button>
+
+    <div class="secn">Who's coming (name · # · when)</div>
+    <div id="le-guests"></div>
+    <button type="button" class="le-add" data-add="guests">+ Add person/family</button>
+
+    <div class="secn">Weather note</div>
+    <div class="field"><textarea id="f-weather" rows="3"></textarea></div>
+
+    <div class="secn">What to bring</div>
+    <div id="le-bring"></div>
+    <button type="button" class="le-add" data-add="bring">+ Add item</button>
+
+    <div class="secn">Things to do</div>
+    <div id="le-activities"></div>
+    <button type="button" class="le-add" data-add="activities">+ Add activity</button>
+
+    <div class="secn">Campground info (label · detail)</div>
+    <div id="le-details"></div>
+    <button type="button" class="le-add" data-add="details">+ Add row</button>
+
+    <div class="secn">Good to know (notes)</div>
+    <div id="le-notes"></div>
+    <button type="button" class="le-add" data-add="notes">+ Add note</button>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="editCancel">Cancel</button>
+      <button type="button" class="btn" id="editSave">Save — make live</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // ---- Seed / fallback data (used until something is saved to the server) ----
+  const DEFAULT_TRIP = {
+    title: "Portola Redwoods Camp Trip",
+    campground: "Portola Redwoods State Park · La Honda, CA",
+    arrive: "2026-06-05",
+    depart: "2026-06-07",
+    statusLevel: "confirmed",
+    statusText: "Confirmed — 4 sites booked (6, 8, 9 & 52). See you in the redwoods!",
+    checkIn: "2:00 PM",
+    checkOut: "12:00 noon",
+    siteNumbers: "6, 8, 9 & 52",
+    nights: "2 nights (Fri–Sun)",
+    address: "9000 Portola State Park Road, La Honda, CA 94020",
+    phone: "(650) 948-9098",
+    mapsUrl: "https://maps.app.goo.gl/VpV6sLaqhtCQ92Rt9",
+    campgroundUrl: "https://www.parks.ca.gov/?page_id=539",
+    sites: [
+      { k: "Sites 6 & 9", v: "Under Gabriel" },
+      { k: "Sites 8 & 52", v: "Under the Frambachs" },
+      { k: "Capacity", v: "2 cars / 8 people each" },
+      { k: "Layout", v: "6, 8 & 9 cluster together; 52 is a short walk further" },
+    ],
+    guests: [
+      { name: "Frambach family", n: 4 },
+      { name: "Julia and Aiden", n: 2 },
+      { name: "Vivian's family", n: 3 },
+      { name: "Arthur's family", n: 3 },
+      { name: "Arthur family's friends", n: 4, when: "Sat only" },
+      { name: "Teresa", n: 1, when: "Fri only" },
+      { name: "Chaubers", n: 3 },
+      { name: "Laia's family", n: 3 },
+    ],
+    details: [
+      { k: "Water", v: "Potable water throughout the campground" },
+      { k: "Restrooms", v: "Restrooms on-site near the sites" },
+      { k: "Campfires", v: "Allowed — buy firewood on-site (near visitor center)" },
+      { k: "Visitor center", v: "Open 9am–5pm weekends; check in on arrival" },
+      { k: "Cell service", v: "Minimal to none; possible wifi at visitor center" },
+      { k: "Gas & stores", v: "None nearby — fill up & stock up before you come" },
+      { k: "Parking", v: "Bring cash; may need to pay — check in at visitor center" },
+    ],
+    weather: "Nights drop to the upper 40s in the redwood valley (stays cool on the ground). Days are mild; usually not windy.",
+    bring: [
+      "Tent, sleeping bag, sleeping pad & blankets (it gets cold at night)",
+      "Jackets / warm layers",
+      "Camp chairs",
+      "Spare shoes (in case some get muddy or wet)",
+      "Food + cooking gear (coordinate stoves if you want to share)",
+      "Cash for parking & firewood",
+    ],
+    activities: [
+      "Campfire + s'mores",
+      "Play in the creek",
+      "Old Tree Trail — short hike to old-growth redwoods",
+      "Longer trail out to the waterfall",
+    ],
+    notes: [
+      "Food: plan your own meals by default, or offer to spearhead a group meal if you'd like.",
+      "Gear: reply-all if you need to borrow something or want to combine stoves.",
+      "Gabriel, Conner & Stella plan to leave Pacifica in the afternoon, arriving ~2–4 PM.",
+    ],
+  };
+
+  const API = "/api/trip";
+  let currentTrip = DEFAULT_TRIP;
+
+  // ---------- Rendering ----------
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  const fmt = (iso) => { if (!iso) return "TBD"; const d = new Date(iso + "T00:00:00"); return d.toLocaleDateString(undefined, { weekday: "short", month: "long", day: "numeric" }); };
+  const fmtShort = (iso) => new Date(iso + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+  function render(t) {
+    $("t-title").textContent = t.title || "Camping Trip";
+    $("t-where").textContent = t.campground || "";
+    $("t-dates").textContent = t.arrive && t.depart ? `${fmtShort(t.arrive)} – ${fmtShort(t.depart)}, ${new Date(t.arrive+"T00:00:00").getFullYear()}` : "Dates TBD";
+
+    if (t.arrive) {
+      const days = Math.ceil((new Date(t.arrive + "T00:00:00") - new Date()) / 86400000);
+      $("t-countdown").textContent = days > 1 ? `${days} days to go` : days === 1 ? "Tomorrow!" : days === 0 ? "Today! 🎉" : "Happening now / wrapped up";
+    } else $("t-countdown").textContent = "";
+
+    const statusEl = $("t-status");
+    statusEl.classList.toggle("pending", t.statusLevel === "pending");
+    $("t-status-text").textContent = t.statusText || "";
+
+    $("c-arrive").textContent = fmt(t.arrive);
+    $("c-depart").textContent = fmt(t.depart);
+    $("c-checkin").textContent = t.checkIn || "";
+    $("c-checkout").textContent = t.checkOut || "";
+    $("c-sites").textContent = t.siteNumbers || "";
+    $("c-nights").textContent = t.nights || "";
+    $("c-address").textContent = t.address || "";
+    $("c-phone").textContent = t.phone ? "📞 " + t.phone : "";
+    $("c-maps").href = t.mapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(t.address || "")}`;
+
+    const rowHTML = (d) => `<div class="row"><span class="k">${esc(d.k)}</span><span class="v">${esc(d.v)}</span></div>`;
+    $("t-sites").innerHTML = (t.sites || []).map(rowHTML).join("");
+    $("t-details").innerHTML = (t.details || []).map(rowHTML).join("");
+
+    let total = 0;
+    const gHTML = (t.guests || []).map(g => {
+      total += Number(g.n) || 0;
+      const tag = g.when ? `<span class="tag">${esc(g.when)}</span>` : "";
+      return `<div class="row"><span class="k">${esc(g.name)}${tag}</span><span class="v">${esc(g.n)}</span></div>`;
+    }).join("");
+    $("t-guests").innerHTML = gHTML + `<div class="row total"><span class="k">Total</span><span class="v">${total} people</span></div>`;
+
+    $("t-weather").textContent = t.weather || "";
+    $("t-bring").innerHTML = (t.bring || []).map(b => `<li>${esc(b)}</li>`).join("");
+    $("t-activities").innerHTML = (t.activities || []).map(a => `<div class="row"><span class="k">${esc(a)}</span></div>`).join("");
+    $("t-notes").innerHTML = (t.notes || []).map(n => `<div class="row note">${esc(n)}</div>`).join("");
+
+    const a = $("t-cgurl");
+    if (t.campgroundUrl) { a.href = t.campgroundUrl; a.textContent = "Official campground website →"; }
+    else { a.textContent = ""; a.removeAttribute("href"); }
+  }
+
+  // ---------- Load live data ----------
+  async function loadTrip() {
+    try {
+      const r = await fetch(API, { cache: "no-store" });
+      if (r.ok) {
+        const data = await r.json();
+        if (data && data.title) currentTrip = data;
+      }
+    } catch (e) { /* not deployed yet / offline — fall back to seed */ }
+    render(currentTrip);
+  }
+
+  // ---------- Edit modal ----------
+  const overlay = $("editOverlay");
+
+  // List-editor schemas
+  const LISTS = {
+    sites:      { fields: [{ key: "k", ph: "Label" }, { key: "v", ph: "Detail" }] },
+    guests:     { fields: [{ key: "name", ph: "Name" }, { key: "n", ph: "#", num: true }, { key: "when", ph: "When (optional)" }] },
+    details:    { fields: [{ key: "k", ph: "Label" }, { key: "v", ph: "Detail" }] },
+    bring:      { fields: [{ key: "_self", ph: "Item" }] },
+    activities: { fields: [{ key: "_self", ph: "Activity" }] },
+    notes:      { fields: [{ key: "_self", ph: "Note" }] },
+  };
+
+  function addRow(listKey, values) {
+    const schema = LISTS[listKey].fields;
+    const container = $("le-" + listKey);
+    const row = document.createElement("div");
+    row.className = "le-row";
+    schema.forEach(f => {
+      const inp = document.createElement("input");
+      inp.className = "le-input" + (f.num ? " num" : "");
+      inp.dataset.key = f.key;
+      inp.type = f.num ? "number" : "text";
+      inp.placeholder = f.ph;
+      if (f.key === "_self") inp.value = values ?? "";
+      else inp.value = (values && values[f.key] != null) ? values[f.key] : "";
+      row.appendChild(inp);
+    });
+    const del = document.createElement("button");
+    del.type = "button"; del.className = "le-del"; del.textContent = "✕";
+    del.onclick = () => row.remove();
+    row.appendChild(del);
+    container.appendChild(row);
+  }
+
+  function fillList(listKey, items) {
+    $("le-" + listKey).innerHTML = "";
+    (items || []).forEach(it => addRow(listKey, it));
+  }
+
+  function readList(listKey) {
+    const schema = LISTS[listKey].fields;
+    const rows = [...$("le-" + listKey).querySelectorAll(".le-row")];
+    const out = [];
+    rows.forEach(row => {
+      const inputs = [...row.querySelectorAll(".le-input")];
+      if (schema.length === 1 && schema[0].key === "_self") {
+        const v = inputs[0].value.trim();
+        if (v) out.push(v);
+      } else {
+        const obj = {}; let any = false;
+        inputs.forEach(inp => {
+          const key = inp.dataset.key;
+          let val = inp.value.trim();
+          if (inp.type === "number") { if (val !== "") { obj[key] = Number(val); any = true; } }
+          else if (val !== "") { obj[key] = val; any = true; }
+        });
+        if (any) out.push(obj);
+      }
+    });
+    return out;
+  }
+
+  function openEditor() {
+    const t = currentTrip;
+    ["title","campground","arrive","depart","statusLevel","statusText","checkIn","checkOut",
+     "siteNumbers","nights","address","phone","mapsUrl","campgroundUrl","weather"].forEach(k => {
+      const el = $("f-" + k); if (el) el.value = t[k] ?? "";
+    });
+    fillList("sites", t.sites); fillList("guests", t.guests); fillList("details", t.details);
+    fillList("bring", t.bring); fillList("activities", t.activities); fillList("notes", t.notes);
+    overlay.classList.add("open");
+  }
+  function closeEditor() { overlay.classList.remove("open"); }
+
+  function readForm() {
+    const t = {};
+    ["title","campground","arrive","depart","statusLevel","statusText","checkIn","checkOut",
+     "siteNumbers","nights","address","phone","mapsUrl","campgroundUrl","weather"].forEach(k => {
+      t[k] = ($("f-" + k).value || "").trim();
+    });
+    t.sites = readList("sites"); t.guests = readList("guests"); t.details = readList("details");
+    t.bring = readList("bring"); t.activities = readList("activities"); t.notes = readList("notes");
+    return t;
+  }
+
+  function getPassword() {
+    let p = sessionStorage.getItem("edit_pw");
+    if (!p) { p = prompt("Enter the edit password:"); if (p) sessionStorage.setItem("edit_pw", p); }
+    return p;
+  }
+
+  function toast(msg) {
+    const el = $("toast"); el.textContent = msg; el.classList.add("show");
+    setTimeout(() => el.classList.remove("show"), 2600);
+  }
+
+  async function saveTrip() {
+    const pw = getPassword();
+    if (!pw) return;
+    const trip = readForm();
+    const saveBtn = $("editSave");
+    saveBtn.disabled = true; saveBtn.textContent = "Saving…";
+    try {
+      const r = await fetch(API, {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-edit-password": pw },
+        body: JSON.stringify(trip),
+      });
+      if (r.status === 401) { sessionStorage.removeItem("edit_pw"); alert("Wrong edit password — try again."); return; }
+      if (!r.ok) { alert("Save failed (" + r.status + "). Is the site fully deployed?"); return; }
+      currentTrip = trip;
+      render(trip);
+      closeEditor();
+      toast("Saved — live for everyone ✓");
+    } catch (e) {
+      alert("Couldn't reach the server. Make sure the site is deployed from Git (not drag-drop).");
+    } finally {
+      saveBtn.disabled = false; saveBtn.textContent = "Save — make live";
+    }
+  }
+
+  // Wire up
+  $("editFab").addEventListener("click", openEditor);
+  $("editCancel").addEventListener("click", closeEditor);
+  $("editSave").addEventListener("click", saveTrip);
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeEditor(); });
+  document.querySelectorAll(".le-add").forEach(btn => btn.addEventListener("click", () => addRow(btn.dataset.add)));
+
+  loadTrip();
+</script>
+</body>
+</html>
