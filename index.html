@@ -8,7 +8,7 @@
 <style>
   :root {
     --bg: #0f1411; --panel: #18201b; --line: #2c3a30; --text: #e8efe9;
-    --muted: #9fb0a4; --accent: #6fae6a; --accent-soft: #2a3a2c; --warn: #d9a441; --radius: 16px;
+    --muted: #9fb0a4; --accent: #6fae6a; --accent-soft: #2a3a2c; --warn: #d9a441; --danger: #e8a0a0; --radius: 16px;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -17,8 +17,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.5; -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 96px; }
-
+  .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 110px; }
   .hero {
     background: linear-gradient(160deg, #1d2a20, #131a15);
     border: 1px solid var(--line); border-radius: var(--radius); padding: 28px 22px; text-align: center;
@@ -32,14 +31,12 @@
     padding: 10px 16px; border-radius: 999px; font-weight: 600; font-size: 15px;
   }
   .countdown { margin-top: 16px; font-size: 14px; color: var(--accent); font-weight: 600; }
-
   .status {
     display: flex; align-items: center; gap: 10px; margin: 16px 0; padding: 12px 16px;
     border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--line); font-size: 14px;
   }
   .status .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex: none; }
   .status.pending .dot { background: var(--warn); }
-
   h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin: 28px 4px 10px; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
@@ -48,7 +45,6 @@
   .card .value { font-size: 17px; font-weight: 600; }
   .card .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
   .card.full { grid-column: 1 / -1; }
-
   a.btn, button.btn {
     display: inline-block; margin-top: 10px; text-decoration: none; cursor: pointer;
     background: var(--accent); color: #0c130c; font-weight: 700; border: none;
@@ -56,7 +52,6 @@
   }
   a.link { color: var(--accent); text-decoration: none; }
   a.link:hover { text-decoration: underline; }
-
   .rows { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
   .row { display: flex; justify-content: space-between; gap: 16px; padding: 13px 16px; border-top: 1px solid var(--line); font-size: 15px; }
   .row:first-child { border-top: none; }
@@ -66,27 +61,25 @@
   .who .v { color: var(--accent); }
   .who .total { background: var(--accent-soft); font-weight: 700; }
   .tag { font-size: 11px; color: var(--warn); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 8px; }
-
   ul.bring { margin: 0; padding: 0; list-style: none; }
   ul.bring li { padding: 11px 16px; border-top: 1px solid var(--line); font-size: 15px; }
   ul.bring li:first-child { border-top: none; }
-
   .foot { text-align: center; color: var(--muted); font-size: 12px; margin-top: 32px; }
-
-  /* Edit button */
-  #editFab {
-    position: fixed; right: 16px; bottom: 16px; z-index: 30;
-    background: var(--accent); color: #0c130c; border: none; cursor: pointer;
-    font-weight: 800; font-size: 14px; padding: 12px 18px; border-radius: 999px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.4); font-family: inherit;
+  .org-link { background: none; border: none; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 12px; font-family: inherit; margin-top: 8px; }
+  /* Floating buttons */
+  #fabWrap { position: fixed; right: 16px; bottom: 16px; z-index: 30; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+  #fabWrap button {
+    border: none; cursor: pointer; font-weight: 800; font-size: 14px; padding: 12px 18px;
+    border-radius: 999px; box-shadow: 0 6px 20px rgba(0,0,0,0.4); font-family: inherit;
   }
-
-  /* Edit modal */
-  #editOverlay {
+  #editFab { background: var(--accent); color: #0c130c; }
+  #pendingBtn { background: var(--warn); color: #1a1206; display: none; }
+  /* Overlays / modals */
+  .overlay {
     position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,0.6);
     display: none; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 24px 12px;
   }
-  #editOverlay.open { display: flex; }
+  .overlay.open { display: flex; }
   .modal {
     background: var(--bg); border: 1px solid var(--line); border-radius: 16px;
     width: 100%; max-width: 640px; padding: 20px; margin: auto;
@@ -105,16 +98,28 @@
   .le-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
   .le-input { flex: 1; min-width: 0; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; font-size: 14px; font-family: inherit; }
   .le-input.num { flex: 0 0 64px; }
-  .le-del { flex: none; background: #3a2526; color: #e8a0a0; border: 1px solid #5a3536; border-radius: 8px; width: 34px; height: 34px; cursor: pointer; font-size: 14px; }
+  .le-del { flex: none; background: #3a2526; color: var(--danger); border: 1px solid #5a3536; border-radius: 8px; width: 34px; height: 34px; cursor: pointer; font-size: 14px; }
   .le-add { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; border-top: 1px solid var(--line); padding-top: 16px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; border-top: 1px solid var(--line); padding-top: 16px; flex-wrap: wrap; }
   .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 10px; padding: 9px 16px; cursor: pointer; font-size: 14px; font-weight: 600; font-family: inherit; }
-
+  .btn-ghost.danger { color: var(--danger); border-color: #5a3536; }
+  .review-banner { display: none; background: var(--accent-soft); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font-size: 14px; margin-bottom: 14px; }
+  /* Pending list */
+  .prop { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 12px; background: var(--panel); }
+  .prop .who-row { font-weight: 700; font-size: 15px; }
+  .prop .when { color: var(--muted); font-size: 12px; font-weight: 400; }
+  .prop .pnote { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .prop .pacts { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .prop .pacts button { font-size: 13px; padding: 7px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 700; border: 1px solid var(--line); }
+  .prop .b-review { background: transparent; color: var(--text); }
+  .prop .b-approve { background: var(--accent); color: #0c130c; border-color: var(--accent); }
+  .prop .b-reject { background: transparent; color: var(--danger); border-color: #5a3536; }
+  .empty { color: var(--muted); font-size: 14px; padding: 8px 2px; }
   /* Toast */
   #toast {
     position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
     background: var(--accent); color: #0c130c; font-weight: 700; padding: 11px 20px; border-radius: 10px;
-    opacity: 0; transition: all .25s ease; z-index: 50; pointer-events: none; font-size: 14px;
+    opacity: 0; transition: all .25s ease; z-index: 50; pointer-events: none; font-size: 14px; max-width: 90%; text-align: center;
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
@@ -128,9 +133,7 @@
     <div class="dates"><span>📅</span><span id="t-dates"></span></div>
     <div class="countdown" id="t-countdown"></div>
   </div>
-
   <div class="status" id="t-status"><span class="dot"></span><span id="t-status-text"></span></div>
-
   <h2>The Essentials</h2>
   <div class="grid">
     <div class="card"><div class="label">Arrive</div><div class="value" id="c-arrive"></div><div class="sub">Check-in <span id="c-checkin"></span></div></div>
@@ -144,37 +147,35 @@
       <a class="btn" id="c-maps" target="_blank" rel="noopener">Get Directions →</a>
     </div>
   </div>
-
   <h2>Our Sites</h2>
   <div class="rows" id="t-sites"></div>
-
   <h2>Who's Coming</h2>
   <div class="rows who" id="t-guests"></div>
-
   <h2>Weather &amp; What to Bring</h2>
   <div class="rows"><div class="row note" id="t-weather"></div></div>
   <ul class="bring rows" id="t-bring" style="margin-top:12px"></ul>
-
   <h2>Things to Do</h2>
   <div class="rows" id="t-activities"></div>
-
   <h2>Campground Info</h2>
   <div class="rows" id="t-details"></div>
   <div style="text-align:center; margin-top:10px"><a class="link" id="t-cgurl" target="_blank" rel="noopener"></a></div>
-
   <h2>Good to Know</h2>
   <div class="rows" id="t-notes"></div>
-
-  <div class="foot">Bookmark this page — it updates live as plans firm up. 🌲</div>
+  <div class="foot">
+    Bookmark this page — it updates live as plans firm up. 🌲<br />
+    <button id="orgLink" class="org-link">Organizer</button>
+  </div>
 </div>
-
-<button id="editFab">✎ Edit trip</button>
-
-<div id="editOverlay">
+<div id="fabWrap">
+  <button id="pendingBtn">📥 Pending (0)</button>
+  <button id="editFab">✎ Suggest an edit</button>
+</div>
+<!-- Editor / suggest / review modal -->
+<div id="editOverlay" class="overlay">
   <div class="modal">
-    <h3>Edit trip info</h3>
-    <p class="hint">Changes save instantly and show up for everyone who opens the page.</p>
-
+    <h3 id="modalTitle">Suggest an edit</h3>
+    <p class="hint" id="modalHint"></p>
+    <div class="review-banner" id="reviewBanner"></div>
     <div class="field"><label>Trip title</label><input id="f-title" type="text" /></div>
     <div class="field"><label>Campground / location line</label><input id="f-campground" type="text" /></div>
     <div class="field two"><label>Dates</label>
@@ -184,56 +185,63 @@
       <select id="f-statusLevel"><option value="confirmed">Confirmed (green)</option><option value="pending">Pending (amber)</option></select>
     </div>
     <div class="field"><label>Status message</label><input id="f-statusText" type="text" /></div>
-
     <div class="secn">Essentials</div>
     <div class="field two"><label>Check-in / Check-out</label>
       <input id="f-checkIn" type="text" placeholder="2:00 PM" /><input id="f-checkOut" type="text" placeholder="12:00 noon" />
     </div>
     <div class="field two"><label>Sites / Length</label>
-      <input id="f-siteNumbers" type="text" placeholder="6, 8, 9 & 52" /><input id="f-nights" type="text" placeholder="2 nights" />
+      <input id="f-siteNumbers" type="text" placeholder="6, 8, 9 &amp; 52" /><input id="f-nights" type="text" placeholder="2 nights" />
     </div>
     <div class="field"><label>Address</label><input id="f-address" type="text" /></div>
     <div class="field two"><label>Phone / Maps link</label>
       <input id="f-phone" type="text" placeholder="(650) ..." /><input id="f-mapsUrl" type="text" placeholder="https://maps.app.goo.gl/..." />
     </div>
     <div class="field"><label>Campground website</label><input id="f-campgroundUrl" type="text" /></div>
-
     <div class="secn">Our sites (label · detail)</div>
     <div id="le-sites"></div>
     <button type="button" class="le-add" data-add="sites">+ Add row</button>
-
     <div class="secn">Who's coming (name · # · when)</div>
     <div id="le-guests"></div>
     <button type="button" class="le-add" data-add="guests">+ Add person/family</button>
-
     <div class="secn">Weather note</div>
     <div class="field"><textarea id="f-weather" rows="3"></textarea></div>
-
     <div class="secn">What to bring</div>
     <div id="le-bring"></div>
     <button type="button" class="le-add" data-add="bring">+ Add item</button>
-
     <div class="secn">Things to do</div>
     <div id="le-activities"></div>
     <button type="button" class="le-add" data-add="activities">+ Add activity</button>
-
     <div class="secn">Campground info (label · detail)</div>
     <div id="le-details"></div>
     <button type="button" class="le-add" data-add="details">+ Add row</button>
-
     <div class="secn">Good to know (notes)</div>
     <div id="le-notes"></div>
     <button type="button" class="le-add" data-add="notes">+ Add note</button>
-
+    <!-- Guest identity (suggest mode only) -->
+    <div id="suggestFields">
+      <div class="secn">Your suggestion</div>
+      <div class="field"><label>Your name</label><input id="f-by" type="text" placeholder="So the organizer knows who suggested this" /></div>
+      <div class="field"><label>Note to the organizer (optional)</label><input id="f-note" type="text" placeholder="What you changed / why" /></div>
+    </div>
     <div class="modal-actions">
       <button type="button" class="btn-ghost" id="editCancel">Cancel</button>
-      <button type="button" class="btn" id="editSave">Save — make live</button>
+      <button type="button" class="btn-ghost danger" id="reviewReject" style="display:none">Reject</button>
+      <button type="button" class="btn" id="suggestSubmit" style="display:none">Submit suggestion</button>
+      <button type="button" class="btn" id="adminSave" style="display:none">Publish live</button>
+      <button type="button" class="btn" id="reviewApprove" style="display:none">Approve &amp; publish</button>
     </div>
   </div>
 </div>
-
+<!-- Pending suggestions (organizer) -->
+<div id="pendingOverlay" class="overlay">
+  <div class="modal">
+    <h3>Pending suggestions</h3>
+    <p class="hint">Tap "Review" to see the exact proposed values, then approve to publish or reject to discard.</p>
+    <div id="pendingList"></div>
+    <div class="modal-actions"><button type="button" class="btn-ghost" id="pendingClose">Close</button></div>
+  </div>
+</div>
 <div id="toast"></div>
-
 <script>
   // ---- Seed / fallback data (used until something is saved to the server) ----
   const DEFAULT_TRIP = {
@@ -297,30 +305,37 @@
       "Gabriel, Conner & Stella plan to leave Pacifica in the afternoon, arriving ~2–4 PM.",
     ],
   };
-
   const API = "/api/trip";
+  const SCALARS = ["title","campground","arrive","depart","statusLevel","statusText","checkIn","checkOut",
+                   "siteNumbers","nights","address","phone","mapsUrl","campgroundUrl","weather"];
   let currentTrip = DEFAULT_TRIP;
-
-  // ---------- Rendering ----------
+  let admin = false;
+  let proposals = [];
+  let editorMode = "suggest"; // "suggest" | "admin" | "review"
+  let reviewId = null;
+  // ---------- Helpers ----------
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
   const fmt = (iso) => { if (!iso) return "TBD"; const d = new Date(iso + "T00:00:00"); return d.toLocaleDateString(undefined, { weekday: "short", month: "long", day: "numeric" }); };
   const fmtShort = (iso) => new Date(iso + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" });
-
+  const ago = (iso) => {
+    const s = Math.floor((Date.now() - new Date(iso)) / 1000);
+    if (s < 60) return "just now";
+    if (s < 3600) return Math.floor(s / 60) + "m ago";
+    if (s < 86400) return Math.floor(s / 3600) + "h ago";
+    return Math.floor(s / 86400) + "d ago";
+  };
+  // ---------- Rendering the public page ----------
   function render(t) {
     $("t-title").textContent = t.title || "Camping Trip";
     $("t-where").textContent = t.campground || "";
     $("t-dates").textContent = t.arrive && t.depart ? `${fmtShort(t.arrive)} – ${fmtShort(t.depart)}, ${new Date(t.arrive+"T00:00:00").getFullYear()}` : "Dates TBD";
-
     if (t.arrive) {
       const days = Math.ceil((new Date(t.arrive + "T00:00:00") - new Date()) / 86400000);
       $("t-countdown").textContent = days > 1 ? `${days} days to go` : days === 1 ? "Tomorrow!" : days === 0 ? "Today! 🎉" : "Happening now / wrapped up";
     } else $("t-countdown").textContent = "";
-
-    const statusEl = $("t-status");
-    statusEl.classList.toggle("pending", t.statusLevel === "pending");
+    $("t-status").classList.toggle("pending", t.statusLevel === "pending");
     $("t-status-text").textContent = t.statusText || "";
-
     $("c-arrive").textContent = fmt(t.arrive);
     $("c-depart").textContent = fmt(t.depart);
     $("c-checkin").textContent = t.checkIn || "";
@@ -330,11 +345,9 @@
     $("c-address").textContent = t.address || "";
     $("c-phone").textContent = t.phone ? "📞 " + t.phone : "";
     $("c-maps").href = t.mapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(t.address || "")}`;
-
     const rowHTML = (d) => `<div class="row"><span class="k">${esc(d.k)}</span><span class="v">${esc(d.v)}</span></div>`;
     $("t-sites").innerHTML = (t.sites || []).map(rowHTML).join("");
     $("t-details").innerHTML = (t.details || []).map(rowHTML).join("");
-
     let total = 0;
     const gHTML = (t.guests || []).map(g => {
       total += Number(g.n) || 0;
@@ -342,33 +355,22 @@
       return `<div class="row"><span class="k">${esc(g.name)}${tag}</span><span class="v">${esc(g.n)}</span></div>`;
     }).join("");
     $("t-guests").innerHTML = gHTML + `<div class="row total"><span class="k">Total</span><span class="v">${total} people</span></div>`;
-
     $("t-weather").textContent = t.weather || "";
     $("t-bring").innerHTML = (t.bring || []).map(b => `<li>${esc(b)}</li>`).join("");
     $("t-activities").innerHTML = (t.activities || []).map(a => `<div class="row"><span class="k">${esc(a)}</span></div>`).join("");
     $("t-notes").innerHTML = (t.notes || []).map(n => `<div class="row note">${esc(n)}</div>`).join("");
-
     const a = $("t-cgurl");
     if (t.campgroundUrl) { a.href = t.campgroundUrl; a.textContent = "Official campground website →"; }
     else { a.textContent = ""; a.removeAttribute("href"); }
   }
-
-  // ---------- Load live data ----------
   async function loadTrip() {
     try {
       const r = await fetch(API, { cache: "no-store" });
-      if (r.ok) {
-        const data = await r.json();
-        if (data && data.title) currentTrip = data;
-      }
+      if (r.ok) { const data = await r.json(); if (data && data.title) currentTrip = data; }
     } catch (e) { /* not deployed yet / offline — fall back to seed */ }
     render(currentTrip);
   }
-
-  // ---------- Edit modal ----------
-  const overlay = $("editOverlay");
-
-  // List-editor schemas
+  // ---------- List editors ----------
   const LISTS = {
     sites:      { fields: [{ key: "k", ph: "Label" }, { key: "v", ph: "Detail" }] },
     guests:     { fields: [{ key: "name", ph: "Name" }, { key: "n", ph: "#", num: true }, { key: "when", ph: "When (optional)" }] },
@@ -377,10 +379,8 @@
     activities: { fields: [{ key: "_self", ph: "Activity" }] },
     notes:      { fields: [{ key: "_self", ph: "Note" }] },
   };
-
   function addRow(listKey, values) {
     const schema = LISTS[listKey].fields;
-    const container = $("le-" + listKey);
     const row = document.createElement("div");
     row.className = "le-row";
     schema.forEach(f => {
@@ -397,28 +397,20 @@
     del.type = "button"; del.className = "le-del"; del.textContent = "✕";
     del.onclick = () => row.remove();
     row.appendChild(del);
-    container.appendChild(row);
+    $("le-" + listKey).appendChild(row);
   }
-
-  function fillList(listKey, items) {
-    $("le-" + listKey).innerHTML = "";
-    (items || []).forEach(it => addRow(listKey, it));
-  }
-
+  function fillList(listKey, items) { $("le-" + listKey).innerHTML = ""; (items || []).forEach(it => addRow(listKey, it)); }
   function readList(listKey) {
     const schema = LISTS[listKey].fields;
-    const rows = [...$("le-" + listKey).querySelectorAll(".le-row")];
     const out = [];
-    rows.forEach(row => {
+    [...$("le-" + listKey).querySelectorAll(".le-row")].forEach(row => {
       const inputs = [...row.querySelectorAll(".le-input")];
       if (schema.length === 1 && schema[0].key === "_self") {
-        const v = inputs[0].value.trim();
-        if (v) out.push(v);
+        const v = inputs[0].value.trim(); if (v) out.push(v);
       } else {
         const obj = {}; let any = false;
         inputs.forEach(inp => {
-          const key = inp.dataset.key;
-          let val = inp.value.trim();
+          const key = inp.dataset.key; let val = inp.value.trim();
           if (inp.type === "number") { if (val !== "") { obj[key] = Number(val); any = true; } }
           else if (val !== "") { obj[key] = val; any = true; }
         });
@@ -427,74 +419,150 @@
     });
     return out;
   }
-
-  function openEditor() {
-    const t = currentTrip;
-    ["title","campground","arrive","depart","statusLevel","statusText","checkIn","checkOut",
-     "siteNumbers","nights","address","phone","mapsUrl","campgroundUrl","weather"].forEach(k => {
-      const el = $("f-" + k); if (el) el.value = t[k] ?? "";
-    });
+  function fillForm(t) {
+    SCALARS.forEach(k => { const el = $("f-" + k); if (el) el.value = t[k] ?? ""; });
     fillList("sites", t.sites); fillList("guests", t.guests); fillList("details", t.details);
     fillList("bring", t.bring); fillList("activities", t.activities); fillList("notes", t.notes);
-    overlay.classList.add("open");
   }
-  function closeEditor() { overlay.classList.remove("open"); }
-
   function readForm() {
     const t = {};
-    ["title","campground","arrive","depart","statusLevel","statusText","checkIn","checkOut",
-     "siteNumbers","nights","address","phone","mapsUrl","campgroundUrl","weather"].forEach(k => {
-      t[k] = ($("f-" + k).value || "").trim();
-    });
+    SCALARS.forEach(k => { t[k] = ($("f-" + k).value || "").trim(); });
     t.sites = readList("sites"); t.guests = readList("guests"); t.details = readList("details");
     t.bring = readList("bring"); t.activities = readList("activities"); t.notes = readList("notes");
     return t;
   }
-
-  function getPassword() {
+  // ---------- Editor modal ----------
+  const overlay = $("editOverlay");
+  function openEditor(mode, proposal) {
+    editorMode = mode; reviewId = null;
+    const t = (mode === "review" && proposal) ? proposal.trip : currentTrip;
+    fillForm(t);
+    if (mode === "suggest") { $("f-by").value = ""; $("f-note").value = ""; }
+    $("suggestFields").style.display = mode === "suggest" ? "" : "none";
+    $("suggestSubmit").style.display = mode === "suggest" ? "" : "none";
+    $("adminSave").style.display = mode === "admin" ? "" : "none";
+    $("reviewApprove").style.display = mode === "review" ? "" : "none";
+    $("reviewReject").style.display = mode === "review" ? "" : "none";
+    const banner = $("reviewBanner");
+    if (mode === "review" && proposal) {
+      reviewId = proposal.id;
+      banner.style.display = "";
+      banner.textContent = `Reviewing ${proposal.by}'s suggestion (${ago(proposal.createdAt)})` + (proposal.note ? ` — "${proposal.note}"` : "");
+    } else banner.style.display = "none";
+    $("modalTitle").textContent = mode === "suggest" ? "Suggest an edit" : mode === "admin" ? "Edit trip (publishes live)" : "Review suggestion";
+    $("modalHint").textContent = mode === "suggest"
+      ? "Make your changes and submit — the organizer reviews before it goes live."
+      : mode === "admin" ? "Anything you save here goes live immediately for everyone."
+      : "Tweak if you like, then approve to publish, or reject to discard.";
+    overlay.classList.add("open");
+    overlay.scrollTop = 0;
+  }
+  function closeEditor() { overlay.classList.remove("open"); }
+  function getPassword(force) {
     let p = sessionStorage.getItem("edit_pw");
-    if (!p) { p = prompt("Enter the edit password:"); if (p) sessionStorage.setItem("edit_pw", p); }
+    if (!p || force) { const inp = prompt("Organizer password:"); if (inp) { p = inp; sessionStorage.setItem("edit_pw", p); } else return null; }
     return p;
   }
-
-  function toast(msg) {
-    const el = $("toast"); el.textContent = msg; el.classList.add("show");
-    setTimeout(() => el.classList.remove("show"), 2600);
-  }
-
-  async function saveTrip() {
-    const pw = getPassword();
-    if (!pw) return;
-    const trip = readForm();
-    const saveBtn = $("editSave");
-    saveBtn.disabled = true; saveBtn.textContent = "Saving…";
+  function toast(msg) { const el = $("toast"); el.textContent = msg; el.classList.add("show"); setTimeout(() => el.classList.remove("show"), 2800); }
+  // ---------- Guest: submit a suggestion ----------
+  async function submitSuggestion() {
+    const by = $("f-by").value.trim();
+    if (!by) { alert("Please add your name so the organizer knows who suggested this."); return; }
+    const payload = { action: "propose", by, note: $("f-note").value.trim(), trip: readForm() };
+    const btn = $("suggestSubmit"); btn.disabled = true; btn.textContent = "Sending…";
     try {
-      const r = await fetch(API, {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-edit-password": pw },
-        body: JSON.stringify(trip),
-      });
-      if (r.status === 401) { sessionStorage.removeItem("edit_pw"); alert("Wrong edit password — try again."); return; }
-      if (!r.ok) { alert("Save failed (" + r.status + "). Is the site fully deployed?"); return; }
-      currentTrip = trip;
-      render(trip);
-      closeEditor();
-      toast("Saved — live for everyone ✓");
-    } catch (e) {
-      alert("Couldn't reach the server. Make sure the site is deployed from Git (not drag-drop).");
-    } finally {
-      saveBtn.disabled = false; saveBtn.textContent = "Save — make live";
-    }
+      const r = await fetch(API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+      if (!r.ok) { alert("Couldn't send (" + r.status + "). Is the site fully deployed?"); return; }
+      closeEditor(); toast("Sent to the organizer for approval ✓");
+    } catch (e) { alert("Couldn't reach the server."); }
+    finally { btn.disabled = false; btn.textContent = "Submit suggestion"; }
   }
-
-  // Wire up
-  $("editFab").addEventListener("click", openEditor);
+  // ---------- Organizer: direct publish ----------
+  async function adminSave() {
+    const pw = getPassword(); if (!pw) return;
+    const trip = readForm();
+    const btn = $("adminSave"); btn.disabled = true; btn.textContent = "Publishing…";
+    try {
+      const r = await fetch(API, { method: "POST", headers: { "content-type": "application/json", "x-edit-password": pw }, body: JSON.stringify({ action: "save", trip }) });
+      if (r.status === 401) { sessionStorage.removeItem("edit_pw"); alert("Wrong password."); return; }
+      if (!r.ok) { alert("Save failed (" + r.status + ")."); return; }
+      currentTrip = trip; render(trip); closeEditor(); toast("Published ✓");
+    } catch (e) { alert("Couldn't reach the server."); }
+    finally { btn.disabled = false; btn.textContent = "Publish live"; }
+  }
+  // ---------- Organizer: approve / reject ----------
+  async function decide(action, id) {
+    const pw = getPassword(); if (!pw) return false;
+    const r = await fetch(API, { method: "POST", headers: { "content-type": "application/json", "x-edit-password": pw }, body: JSON.stringify({ action, id }) });
+    if (r.status === 401) { sessionStorage.removeItem("edit_pw"); alert("Wrong password."); return false; }
+    if (!r.ok) { alert("Action failed (" + r.status + ")."); return false; }
+    proposals = proposals.filter(p => p.id !== id);
+    if (action === "approve") { const data = await r.json().catch(() => ({})); if (data.trip) { currentTrip = data.trip; render(currentTrip); } }
+    renderPending(); updateAdminUI();
+    return true;
+  }
+  async function enterAdmin(forcePrompt) {
+    const pw = getPassword(forcePrompt); if (!pw) return;
+    try {
+      const r = await fetch(API + "?admin=1", { headers: { "x-edit-password": pw } });
+      if (r.status === 401) { sessionStorage.removeItem("edit_pw"); alert("Wrong password."); return; }
+      if (!r.ok) { alert("Error " + r.status + ". Is the site fully deployed?"); return; }
+      const data = await r.json();
+      admin = true;
+      proposals = data.proposals || [];
+      if (data.trip && data.trip.title) { currentTrip = data.trip; render(currentTrip); }
+      updateAdminUI();
+      toast("Organizer mode on");
+      openPending();
+    } catch (e) { alert("Couldn't reach the server."); }
+  }
+  function updateAdminUI() {
+    $("pendingBtn").style.display = admin ? "" : "none";
+    $("pendingBtn").textContent = `📥 Pending (${proposals.length})`;
+    $("editFab").textContent = admin ? "✎ Edit & publish" : "✎ Suggest an edit";
+    $("orgLink").textContent = admin ? "✓ Organizer mode (tap for pending)" : "Organizer";
+  }
+  // ---------- Pending list ----------
+  const pendingOverlay = $("pendingOverlay");
+  function openPending() { renderPending(); pendingOverlay.classList.add("open"); }
+  function closePending() { pendingOverlay.classList.remove("open"); }
+  function renderPending() {
+    if (!proposals.length) { $("pendingList").innerHTML = `<div class="empty">No pending suggestions right now. 🎉</div>`; return; }
+    $("pendingList").innerHTML = proposals.map(p => `
+      <div class="prop" data-id="${p.id}">
+        <div class="who-row">${esc(p.by)} <span class="when">· ${ago(p.createdAt)}</span></div>
+        ${p.note ? `<div class="pnote">"${esc(p.note)}"</div>` : ""}
+        <div class="pacts">
+          <button class="b-review" data-act="review" data-id="${p.id}">Review changes</button>
+          <button class="b-approve" data-act="approve" data-id="${p.id}">Approve &amp; publish</button>
+          <button class="b-reject" data-act="reject" data-id="${p.id}">Reject</button>
+        </div>
+      </div>`).join("");
+  }
+  // ---------- Wire up ----------
+  $("editFab").addEventListener("click", () => openEditor(admin ? "admin" : "suggest"));
+  $("pendingBtn").addEventListener("click", openPending);
+  $("orgLink").addEventListener("click", () => { if (admin) openPending(); else enterAdmin(true); });
   $("editCancel").addEventListener("click", closeEditor);
-  $("editSave").addEventListener("click", saveTrip);
+  $("suggestSubmit").addEventListener("click", submitSuggestion);
+  $("adminSave").addEventListener("click", adminSave);
+  $("reviewApprove").addEventListener("click", async () => { if (reviewId && await decide("approve", reviewId)) { closeEditor(); toast("Approved & published ✓"); } });
+  $("reviewReject").addEventListener("click", async () => { if (reviewId && await decide("reject", reviewId)) { closeEditor(); toast("Rejected"); } });
+  $("pendingClose").addEventListener("click", closePending);
   overlay.addEventListener("click", (e) => { if (e.target === overlay) closeEditor(); });
+  pendingOverlay.addEventListener("click", (e) => { if (e.target === pendingOverlay) closePending(); });
   document.querySelectorAll(".le-add").forEach(btn => btn.addEventListener("click", () => addRow(btn.dataset.add)));
-
+  $("pendingList").addEventListener("click", async (e) => {
+    const btn = e.target.closest("button[data-act]"); if (!btn) return;
+    const id = btn.dataset.id, act = btn.dataset.act;
+    if (act === "review") { const p = proposals.find(x => x.id === id); if (p) { closePending(); openEditor("review", p); } }
+    else if (act === "approve") { if (await decide("approve", id)) toast("Approved & published ✓"); }
+    else if (act === "reject") { if (confirm("Discard this suggestion?") && await decide("reject", id)) toast("Rejected"); }
+  });
+  // ---------- Init ----------
+  updateAdminUI();
   loadTrip();
+  if (new URLSearchParams(location.search).get("review") === "1") enterAdmin(false);
 </script>
 </body>
-</html>
+  </html>
